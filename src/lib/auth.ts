@@ -57,7 +57,7 @@ export const authOptions: NextAuthOptions = {
             id: user.id.toString(),
             email: user.email,
             name: user.nome,
-            role: (user.tipo_usuario === 'Admin' || user.tipo_usuario === 'Administrador') ? 'ADMIN' : 'USER',
+            role: user.tipo_usuario === 'Administrador' ? 'ADMIN' : 'USER'
             tipoUsuario: user.tipo_usuario,
             gestao: user.gestao,
             area: user.area,

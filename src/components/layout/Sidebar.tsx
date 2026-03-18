@@ -54,6 +54,24 @@ const navItems: NavItem[] = [
     href: '/admin/lancamentos',
     icon: Calendar,
   },
+  {
+    section: 'PRINCIPAL',
+    title: 'Dashboard',
+    href: '/user/dashboard',
+    icon: LayoutDashboard,
+  },
+  {
+    section: 'MEUS DADOS',
+    title: 'Meus Lançamentos',
+    href: '/user/meus-lancamentos',
+    icon: PenTool,
+  },
+  {
+    section: 'MEUS DADOS',
+    title: 'Meu Perfil',
+    href: '/user/perfil',
+    icon: User,
+  },
 ]
 
 export function Sidebar() {

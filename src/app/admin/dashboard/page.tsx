@@ -30,16 +30,18 @@ export default function AdminDashboard() {
     from: new Date().toISOString().split('T')[0],
     to: new Date().toISOString().split('T')[0]
   })
+  const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
     fetchDashboardData()
+    setInitialized(true)
   }, [])
 
   useEffect(() => {
-    if (selectedUser || dateRange.from || dateRange.to) {
+    if (initialized && (selectedUser || dateRange.from || dateRange.to)) {
       fetchMetrics()
     }
-  }, [selectedUser, dateRange])
+  }, [selectedUser, dateRange, initialized])
 
   const fetchDashboardData = async () => {
     try {
