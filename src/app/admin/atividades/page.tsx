@@ -11,6 +11,7 @@ interface Atividade {
   nome: string
   descricao?: string
   categoria_id: number
+  ativo: boolean
   categorias: {
     id: number
     nome: string

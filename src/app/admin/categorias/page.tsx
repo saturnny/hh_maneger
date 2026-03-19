@@ -10,9 +10,8 @@ interface Categoria {
   id: number
   nome: string
   descricao?: string
-  _count: {
-    atividades: number
-  }
+  ativo: boolean
+  atividades_count?: number
 }
 
 export default function AdminCategorias() {

@@ -34,6 +34,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Erro ao atualizar usuário' }, { status: 500 })
     }
 
+    console.log('Usuário atualizado com sucesso:', user)
+
     return NextResponse.json({ user })
   } catch (error) {
     console.error('Erro ao atualizar usuário:', error)
@@ -52,15 +54,19 @@ export async function DELETE(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    const { error } = await supabaseServer
+    const { data: user, error } = await supabaseServer
       .from('usuarios')
       .delete()
       .eq('id', params.id)
+      .select()
+      .single()
 
     if (error) {
       console.error('Erro ao excluir usuário:', error)
       return NextResponse.json({ error: 'Erro ao excluir usuário' }, { status: 500 })
     }
+
+    console.log('Usuário excluído com sucesso:', user)
 
     return NextResponse.json({ message: 'Usuário excluído com sucesso' })
   } catch (error) {

@@ -92,10 +92,10 @@ export function Sidebar() {
     if (item.href.startsWith('/admin')) {
       return isAdmin
     }
-    if (item.href.startsWith('/user') || !item.href.startsWith('/admin')) {
+    if (item.href.startsWith('/user')) {
       return !isAdmin
     }
-    return true
+    return false
   })
 
   const getHref = (item: NavItem) => {

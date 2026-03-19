@@ -60,6 +60,22 @@ async function seed() {
       console.log('ℹ️ Administrador Teste já existe')
     }
 
+    if (!existingEmails.includes('user@teste.com')) {
+      const userTestePassword = await bcrypt.hash('user123', 10)
+      await supabase
+        .from('usuarios')
+        .insert({
+          nome: 'Usuário Teste',
+          email: 'user@teste.com',
+          senha: userTestePassword,
+          tipo_usuario: 'Usuário',
+          ativo: true
+        })
+      console.log('✅ Usuário Teste criado')
+    } else {
+      console.log('ℹ️ Usuário Teste já existe')
+    }
+
     if (!existingEmails.includes('usuario@qualidados.com')) {
       await supabase
         .from('usuarios')

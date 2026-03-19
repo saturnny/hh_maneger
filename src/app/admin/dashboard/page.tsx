@@ -47,18 +47,30 @@ export default function AdminDashboard() {
     try {
       setLoading(true)
       
+      console.log('Buscando métricas admin...')
+      
       // Buscar métricas globais
       const metricsResponse = await fetch('/api/metrics?type=admin')
+      console.log('Response metrics:', metricsResponse.status)
+      
       if (metricsResponse.ok) {
         const metricsData = await metricsResponse.json()
+        console.log('Dados das métricas:', metricsData)
         setMetrics(metricsData)
+      } else {
+        console.error('Erro na resposta das métricas:', await metricsResponse.text())
       }
 
       // Buscar usuários para filtros
       const usuariosResponse = await fetch('/api/usuarios?pageSize=100')
+      console.log('Response usuarios:', usuariosResponse.status)
+      
       if (usuariosResponse.ok) {
         const usuariosData = await usuariosResponse.json()
+        console.log('Dados dos usuários:', usuariosData)
         setUsuarios(usuariosData.usuarios || [])
+      } else {
+        console.error('Erro na resposta dos usuários:', await usuariosResponse.text())
       }
     } catch (error) {
       console.error('Erro ao buscar dados do dashboard:', error)
@@ -69,6 +81,8 @@ export default function AdminDashboard() {
 
   const fetchMetrics = async () => {
     try {
+      console.log('Buscando métricas com filtros...')
+      
       const params = new URLSearchParams({
         type: 'admin',
         ...(selectedUser && { usuario_id: selectedUser }),
@@ -77,9 +91,14 @@ export default function AdminDashboard() {
       })
 
       const metricsResponse = await fetch(`/api/metrics?${params}`)
+      console.log('Response metrics filtradas:', metricsResponse.status)
+      
       if (metricsResponse.ok) {
         const metricsData = await metricsResponse.json()
+        console.log('Dados das métricas filtradas:', metricsData)
         setMetrics(metricsData)
+      } else {
+        console.error('Erro na resposta das métricas filtradas:', await metricsResponse.text())
       }
     } catch (error) {
       console.error('Erro ao buscar métricas filtradas:', error)
