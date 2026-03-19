@@ -285,23 +285,49 @@ function NovoLancamento() {
     e.preventDefault()
     setLoading(true)
 
+    // Validação básica
+    if (!formData.atividade_id) {
+      alert('Selecione uma atividade')
+      setLoading(false)
+      return
+    }
+
+    if (!formData.hora_inicio || !formData.hora_fim) {
+      alert('Preencha os horários de início e fim')
+      setLoading(false)
+      return
+    }
+
     try {
       const url = action === 'edit' ? `/api/lancamentos/${id}` : '/api/lancamentos'
       const method = action === 'edit' ? 'PUT' : 'POST'
+      
+      const payload = {
+        ...formData,
+        atividade_id: parseInt(formData.atividade_id)
+      }
+      
+      console.log('Enviando dados:', payload)
+      console.log('URL:', url, 'Method:', method)
       
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       })
 
-      if (response.ok) {
-        router.push('/user/meus-lancamentos')
-      } else {
-        alert('Erro ao salvar lançamento')
+      console.log('Status response:', response.status)
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.log('Erro da API:', errorData)
+        alert(errorData.error || 'Erro ao salvar lançamento')
+        return
       }
+
+      router.back()
     } catch (error) {
       console.error('Erro ao salvar lançamento:', error)
       alert('Erro ao salvar lançamento')
@@ -393,7 +419,7 @@ function NovoLancamento() {
             <div className="flex items-center justify-end space-x-4">
               <button
                 type="button"
-                onClick={() => router.push('/user/meus-lancamentos')}
+                onClick={() => router.back()}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Cancelar

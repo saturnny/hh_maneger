@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { z } from 'zod'
 import { WORKDAY_START, WORKDAY_END, MINUTE_STEP, TARGET_HOURS } from '@/lib/time'
 
 const createLancamentoSchema = z.object({
-  usuario_id: z.number().int().positive(),
+  usuario_id: z.number().int().positive().optional(),
   atividade_id: z.number().int().positive(),
   data: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Data inválida'),
   hora_inicio: z.string().regex(/^\d{2}:\d{2}$/, 'Hora inválida'),
@@ -208,7 +209,7 @@ export async function POST(request: NextRequest) {
 
     // Verificar sobreposição
     const hasOverlap = await checkTimeOverlap(
-      validatedData.usuario_id,
+      validatedData.usuario_id!,
       validatedData.data,
       validatedData.hora_inicio,
       validatedData.hora_fim
@@ -234,7 +235,7 @@ export async function POST(request: NextRequest) {
     const horasTrabalhadas = calculateDuration(validatedData.hora_inicio, validatedData.hora_fim)
     const horasPendentes = Math.max(0, TARGET_HOURS - horasTrabalhadas)
 
-    const { data: lancamento, error } = await supabaseServer
+    const { data: lancamento, error } = await supabaseAdmin
       .from('lancamentos')
       .insert({
         ...validatedData,
