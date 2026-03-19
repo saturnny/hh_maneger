@@ -32,9 +32,11 @@ export default function NovaCategoria() {
       })
 
       if (response.ok) {
+        console.log('Categoria criada com sucesso!')
         router.push('/admin/categorias')
       } else {
         const data = await response.json()
+        console.error('Erro ao criar categoria:', data)
         setError(data.error || 'Erro ao criar categoria')
       }
     } catch (error) {

@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { Plus, Edit2, Trash2, Users, Shield, UserCheck, UserX } from 'lucide-react'
+import { Plus, Edit2, Trash2, Users, Search, Filter, UserCheck, UserX } from 'lucide-react'
 import Link from 'next/link'
 
 interface Usuario {
@@ -26,9 +27,21 @@ export default function AdminUsuarios() {
   const [filterRole, setFilterRole] = useState('todos')
   const [filterStatus, setFilterStatus] = useState('todos')
 
+  // Verificar se action=new na URL
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const action = searchParams.get('action')
+
   useEffect(() => {
     fetchUsuarios()
   }, [])
+
+  // Redirecionar para página de novo usuário se action=new
+  useEffect(() => {
+    if (action === 'new') {
+      router.push('/admin/usuarios/new')
+    }
+  }, [action, router])
 
   const fetchUsuarios = async () => {
     try {

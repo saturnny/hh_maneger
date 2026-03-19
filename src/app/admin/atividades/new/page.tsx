@@ -50,9 +50,11 @@ export default function NovaAtividade() {
       })
 
       if (response.ok) {
+        console.log('Atividade criada com sucesso!')
         router.push('/admin/atividades')
       } else {
         const data = await response.json()
+        console.error('Erro ao criar atividade:', data)
         setError(data.error || 'Erro ao criar atividade')
       }
     } catch (error) {

@@ -17,7 +17,8 @@ export async function GET() {
         id,
         nome,
         descricao,
-        ativo
+        ativo,
+        atividades(count)
       `)
       .order('nome')
 
@@ -59,8 +60,11 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (existingCategoria) {
+      console.error('Categoria já existe:', existingCategoria)
       return NextResponse.json({ error: 'Categoria já existe' }, { status: 400 })
     }
+
+    console.log('Verificação de duplicidade concluída, nova categoria:', nome)
 
     // Criar categoria
     const { data: categoria, error } = await supabaseServer

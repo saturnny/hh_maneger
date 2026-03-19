@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { Plus, Edit2, Trash2, List, Tag, Calendar } from 'lucide-react'
 import Link from 'next/link'
@@ -26,9 +27,29 @@ export default function AdminAtividades() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('todas')
 
+  // Verificar se action=new na URL
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const action = searchParams.get('action')
+  const editId = searchParams.get('id')
+
   useEffect(() => {
     fetchData()
   }, [])
+
+  // Redirecionar para página de nova atividade se action=new
+  useEffect(() => {
+    if (action === 'new') {
+      router.push('/admin/atividades/new')
+    }
+  }, [action, router])
+
+  // Redirecionar para página de edição se action=edit
+  useEffect(() => {
+    if (action === 'edit' && editId) {
+      router.push(`/admin/atividades/${editId}`)
+    }
+  }, [action, editId, router])
 
   const fetchData = async () => {
     try {

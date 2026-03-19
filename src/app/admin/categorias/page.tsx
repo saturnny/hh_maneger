@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { Plus, Edit2, Trash2, FolderOpen, Tag } from 'lucide-react'
 import Link from 'next/link'
@@ -20,9 +21,29 @@ export default function AdminCategorias() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
 
+  // Verificar se action=new na URL
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const action = searchParams.get('action')
+  const editId = searchParams.get('id')
+
   useEffect(() => {
     fetchCategorias()
   }, [])
+
+  // Redirecionar para página de nova categoria se action=new
+  useEffect(() => {
+    if (action === 'new') {
+      router.push('/admin/categorias/new')
+    }
+  }, [action, router])
+
+  // Redirecionar para página de edição se action=edit
+  useEffect(() => {
+    if (action === 'edit' && editId) {
+      router.push(`/admin/categorias/${editId}`)
+    }
+  }, [action, editId, router])
 
   const fetchCategorias = async () => {
     try {
@@ -44,8 +65,8 @@ export default function AdminCategorias() {
     const categoria = categorias.find(c => c.id === id)
     if (!categoria) return
     
-    if (categoria._count.atividades > 0) {
-      alert(`Esta categoria possui ${categoria._count.atividades} atividade(s) vinculada(s). Não é possível excluir.`)
+    if (categoria.atividades_count > 0) {
+      alert(`Esta categoria possui ${categoria.atividades_count} atividade(s) vinculada(s). Não é possível excluir.`)
       return
     }
     
@@ -148,7 +169,7 @@ export default function AdminCategorias() {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">{categoria.nome}</h3>
                     <p className="text-sm text-gray-600">
-                      {categoria._count.atividades} atividade(s)
+                      {categoria.atividades_count || 0} atividade(s)
                     </p>
                   </div>
                 </div>
@@ -163,11 +184,9 @@ export default function AdminCategorias() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    categoria._count.atividades > 0 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-800'
+                    categoria.atividades_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                   }`}>
-                    {categoria._count.atividades > 0 ? 'Em uso' : 'Sem uso'}
+                    {categoria.atividades_count > 0 ? 'Em uso' : 'Sem uso'}
                   </span>
                 </div>
                 
@@ -178,7 +197,7 @@ export default function AdminCategorias() {
                   >
                     <Edit2 className="w-4 h-4" />
                   </Link>
-                  {categoria._count.atividades === 0 && (
+                  {categoria.atividades_count === 0 && (
                     <>
                       <span className="text-gray-300">|</span>
                       <button

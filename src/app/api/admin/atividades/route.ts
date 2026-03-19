@@ -64,8 +64,11 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (categoriaError || !categoria) {
+      console.error('Categoria não encontrada:', categoriaError)
       return NextResponse.json({ error: 'Categoria não encontrada' }, { status: 400 })
     }
+
+    console.log('Categoria encontrada:', categoria)
 
     // Criar atividade
     const { data: atividade, error } = await supabaseServer

@@ -54,9 +54,11 @@ export default function NovoUsuario() {
       })
 
       if (response.ok) {
+        console.log('Usuário criado com sucesso!')
         router.push('/admin/usuarios')
       } else {
         const data = await response.json()
+        console.error('Erro ao criar usuário:', data)
         setError(data.error || 'Erro ao criar usuário')
       }
     } catch (error) {
