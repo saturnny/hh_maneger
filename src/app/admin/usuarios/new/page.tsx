@@ -120,7 +120,7 @@ export default function NovoUsuario() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                   required
                 >
-                  <option value="Admin">Administrador</option>
+                  <option value="Administrador">Administrador</option>
                   <option value="Usuário">Usuário</option>
                 </select>
               </div>

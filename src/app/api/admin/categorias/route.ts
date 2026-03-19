@@ -74,7 +74,12 @@ export async function POST(request: NextRequest) {
         descricao: descricao || null,
         ativo: true
       })
-      .select()
+      .select(`
+        id,
+        nome,
+        descricao,
+        ativo
+      `)
       .single()
 
     if (error) {

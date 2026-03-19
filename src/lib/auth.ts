@@ -50,14 +50,18 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             nome: user.nome,
             tipo_usuario: user.tipo_usuario,
-            role: user.tipo_usuario === 'Admin' ? 'ADMIN' : 'USER'
+            role: ['Admin', 'Administrador'].includes(user.tipo_usuario)
+            ? 'ADMIN'
+            : 'USER'
           })
 
           const userData = {
             id: user.id.toString(),
             email: user.email,
             name: user.nome,
-            role: user.tipo_usuario === 'Admin' ? 'ADMIN' : 'USER',
+            role: ['Admin', 'Administrador'].includes(user.tipo_usuario)
+            ? 'ADMIN'
+            : 'USER',
             tipoUsuario: user.tipo_usuario,
             gestao: user.gestao,
             area: user.area,

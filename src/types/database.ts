@@ -3,7 +3,7 @@ export interface Usuario {
   nome: string
   email: string
   senha: string
-  tipo_usuario: 'Administrador' | 'Usuário'
+  tipo_usuario: 'Admin' | 'Administrador' | 'Usuário'
   ativo: boolean
   gestao?: string
   area?: string
@@ -53,7 +53,7 @@ export interface CreateUsuarioInput {
   nome: string
   email: string
   senha: string
-  tipo_usuario: 'Administrador' | 'Usuário'
+  tipo_usuario: 'Admin' | 'Administrador' | 'Usuário'
   gestao?: string
   area?: string
   equipe?: string
@@ -64,7 +64,7 @@ export interface UpdateUsuarioInput {
   nome?: string
   email?: string
   senha?: string
-  tipo_usuario?: 'Administrador' | 'Usuário'
+  tipo_usuario?: 'Admin' | 'Administrador' | 'Usuário'
   ativo?: boolean
   gestao?: string
   area?: string

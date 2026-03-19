@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import bcrypt from 'bcryptjs'
 
 export async function GET() {
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se email já existe
-    const { data: existingUser } = await supabaseServer
+    const { data: existingUser } = await supabaseAdmin
       .from('usuarios')
       .select('email')
       .eq('email', email)
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 10)
 
     // Criar usuário
-    const { data: usuario, error } = await supabaseServer
+    const { data: usuario, error } = await supabaseAdmin
       .from('usuarios')
       .insert({
         nome,
@@ -85,12 +86,22 @@ export async function POST(request: NextRequest) {
         equipe: equipe || null,
         especialidade: especialidade || null
       })
-      .select()
+      .select(`
+        id,
+        nome,
+        email,
+        tipo_usuario,
+        ativo,
+        gestao,
+        area,
+        equipe,
+        especialidade
+      `)
       .single()
 
     if (error) {
       console.error('Erro ao criar usuário:', error)
-      return NextResponse.json({ error: 'Erro ao criar usuário' }, { status: 500 })
+      return NextResponse.json({ error: error.message || 'Erro ao criar usuário' }, { status: 500 })
     }
 
     console.log('Usuário criado com sucesso:', usuario)

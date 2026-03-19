@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 
@@ -9,7 +10,7 @@ const createUsuarioSchema = z.object({
   nome: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   email: z.string().email('Email inválido'),
   senha: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
-  tipo_usuario: z.enum(['Administrador', 'Usuário']),
+  tipo_usuario: z.enum(['Admin', 'Administrador', 'Usuário']),
   gestao: z.string().optional(),
   area: z.string().optional(),
   equipe: z.string().optional(),
@@ -20,7 +21,7 @@ const updateUsuarioSchema = z.object({
   nome: z.string().min(2).optional(),
   email: z.string().email().optional(),
   senha: z.string().min(6).optional(),
-  tipo_usuario: z.enum(['Administrador', 'Usuário']).optional(),
+  tipo_usuario: z.enum(['Admin', 'Administrador', 'Usuário']).optional(),
   ativo: z.boolean().optional(),
   gestao: z.string().optional(),
   area: z.string().optional(),
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
     const validatedData = createUsuarioSchema.parse(body)
 
     // Verificar se email já existe
-    const { data: existingUser } = await supabaseServer
+    const { data: existingUser } = await supabaseAdmin
       .from('usuarios')
       .select('id')
       .eq('email', validatedData.email)
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
     // Hash da senha
     const hashedPassword = await bcrypt.hash(validatedData.senha, 10)
 
-    const { data: usuario, error } = await supabaseServer
+    const { data: usuario, error } = await supabaseAdmin
       .from('usuarios')
       .insert({
         ...validatedData,

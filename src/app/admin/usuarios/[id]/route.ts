@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import bcrypt from 'bcryptjs'
 
 export async function PUT(
@@ -22,16 +23,16 @@ export async function PUT(
       return NextResponse.json({ error: 'Campo ativo é obrigatório' }, { status: 400 })
     }
 
-    const { data: user, error } = await supabaseServer
+    const { data: user, error } = await supabaseAdmin
       .from('usuarios')
       .update({ ativo })
-      .eq('id', params.id)
+      .eq('id', Number(params.id))
       .select()
       .single()
 
     if (error) {
       console.error('Erro ao atualizar usuário:', error)
-      return NextResponse.json({ error: 'Erro ao atualizar usuário' }, { status: 500 })
+      return NextResponse.json({ error: error.message || 'Erro ao atualizar usuário' }, { status: 500 })
     }
 
     console.log('Usuário atualizado com sucesso:', user)
@@ -54,16 +55,16 @@ export async function DELETE(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    const { data: user, error } = await supabaseServer
+    const { data: user, error } = await supabaseAdmin
       .from('usuarios')
       .delete()
-      .eq('id', params.id)
+      .eq('id', Number(params.id))
       .select()
       .single()
 
     if (error) {
       console.error('Erro ao excluir usuário:', error)
-      return NextResponse.json({ error: 'Erro ao excluir usuário' }, { status: 500 })
+      return NextResponse.json({ error: error.message || 'Erro ao excluir usuário' }, { status: 500 })
     }
 
     console.log('Usuário excluído com sucesso:', user)

@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { MainLayout } from '@/components/layout/MainLayout'
-import { Plus, Edit2, Trash2, Users, Search, Filter, UserCheck, UserX } from 'lucide-react'
+import { Plus, Edit2, Trash2, Users, UserCheck, UserX } from 'lucide-react'
 import Link from 'next/link'
 
 interface Usuario {
@@ -27,33 +26,26 @@ export default function AdminUsuarios() {
   const [filterRole, setFilterRole] = useState('todos')
   const [filterStatus, setFilterStatus] = useState('todos')
 
-  // Verificar se action=new na URL
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const action = searchParams.get('action')
-
   useEffect(() => {
     fetchUsuarios()
   }, [])
-
-  // Redirecionar para página de novo usuário se action=new
-  useEffect(() => {
-    if (action === 'new') {
-      router.push('/admin/usuarios/new')
-    }
-  }, [action, router])
 
   const fetchUsuarios = async () => {
     try {
       setLoading(true)
       const response = await fetch('/api/admin/usuarios')
+
       if (response.ok) {
         const data = await response.json()
         console.log('Usuários recebidos:', data)
         setUsuarios(data.usuarios || [])
+      } else {
+        console.error('Erro ao buscar usuários:', response.status)
+        setUsuarios([])
       }
     } catch (error) {
       console.error('Erro ao buscar usuários:', error)
+      setUsuarios([])
     } finally {
       setLoading(false)
     }
@@ -61,16 +53,16 @@ export default function AdminUsuarios() {
 
   const handleToggleStatus = async (id: number, ativo: boolean) => {
     if (!confirm(`Tem certeza que deseja ${ativo ? 'desativar' : 'ativar'} este usuário?`)) return
-    
+
     try {
       const response = await fetch(`/api/admin/usuarios/${id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ativo: !ativo })
+        body: JSON.stringify({ ativo: !ativo }),
       })
-      
+
       if (response.ok) {
         fetchUsuarios()
       } else {
@@ -84,12 +76,12 @@ export default function AdminUsuarios() {
 
   const handleDelete = async (id: number) => {
     if (!confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.')) return
-    
+
     try {
       const response = await fetch(`/api/admin/usuarios/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       })
-      
+
       if (response.ok) {
         fetchUsuarios()
       } else {
@@ -101,12 +93,17 @@ export default function AdminUsuarios() {
     }
   }
 
-  const filteredUsuarios = usuarios.filter(usuario => {
-    const matchesSearch = usuario.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         usuario.email.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesRole = filterRole === 'todos' || usuario.tipo_usuario === filterRole
-    const matchesStatus = filterStatus === 'todos' || usuario.ativo.toString() === filterStatus
-    
+  const filteredUsuarios = usuarios.filter((usuario) => {
+    const matchesSearch =
+      usuario.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      usuario.email.toLowerCase().includes(searchTerm.toLowerCase())
+
+    const matchesRole =
+      filterRole === 'todos' || usuario.tipo_usuario === filterRole
+
+    const matchesStatus =
+      filterStatus === 'todos' || usuario.ativo.toString() === filterStatus
+
     return matchesSearch && matchesRole && matchesStatus
   })
 
@@ -121,12 +118,12 @@ export default function AdminUsuarios() {
   }
 
   return (
-    <MainLayout 
-      title="Usuários" 
+    <MainLayout
+      title="Usuários"
       subtitle="Gerencie todos os usuários do sistema"
       action={
         <Link
-          href="/admin/usuarios?action=new"
+          href="/admin/usuarios/new"
           className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
@@ -134,11 +131,12 @@ export default function AdminUsuarios() {
         </Link>
       }
     >
-      {/* Filtros */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Buscar
+            </label>
             <input
               type="text"
               value={searchTerm}
@@ -147,8 +145,11 @@ export default function AdminUsuarios() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tipo
+            </label>
             <select
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value)}
@@ -159,8 +160,11 @@ export default function AdminUsuarios() {
               <option value="Usuário">Usuário</option>
             </select>
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Status
+            </label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
@@ -171,6 +175,7 @@ export default function AdminUsuarios() {
               <option value="false">Inativos</option>
             </select>
           </div>
+
           <div className="flex items-end">
             <div className="text-sm text-gray-600">
               {filteredUsuarios.length} usuário(s) encontrado(s)
@@ -179,7 +184,6 @@ export default function AdminUsuarios() {
         </div>
       </div>
 
-      {/* Tabela de Usuários */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -208,6 +212,7 @@ export default function AdminUsuarios() {
                 </th>
               </tr>
             </thead>
+
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredUsuarios.length === 0 ? (
                 <tr>
@@ -215,9 +220,11 @@ export default function AdminUsuarios() {
                     <div className="flex flex-col items-center space-y-3">
                       <Users className="w-12 h-12 text-gray-400" />
                       <p className="text-lg font-medium">Nenhum usuário encontrado</p>
-                      <p className="text-sm">Tente ajustar os filtros ou crie um novo usuário</p>
+                      <p className="text-sm">
+                        Tente ajustar os filtros ou crie um novo usuário
+                      </p>
                       <Link
-                        href="/admin/usuarios?action=new"
+                        href="/admin/usuarios/new"
                         className="inline-flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                       >
                         <Plus className="w-4 h-4" />
@@ -235,36 +242,49 @@ export default function AdminUsuarios() {
                           <UserCheck className="w-5 h-5 text-red-600" />
                         </div>
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{usuario.nome}</div>
-                          <div className="text-sm text-gray-500">{usuario.email}</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {usuario.nome}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {usuario.email}
+                          </div>
                         </div>
                       </div>
                     </td>
+
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        usuario.tipo_usuario === 'Admin' 
-                          ? 'bg-purple-100 text-purple-800' 
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        <Shield className="w-3 h-3 mr-1" />
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          usuario.tipo_usuario === 'Admin' 
+                            ? 'bg-purple-100 text-purple-800' 
+                            : 'bg-blue-100 text-blue-800'
+                        }`}
+                      >
+                        <UserCheck className="w-3 h-3 mr-1" />
                         {usuario.tipo_usuario}
                       </span>
                     </td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {usuario.gestao || '-'}
                     </td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {usuario.area || '-'}
                     </td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {usuario.equipe || '-'}
                     </td>
+
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        usuario.ativo 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          usuario.ativo
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
                         {usuario.ativo ? (
                           <>
                             <UserCheck className="w-3 h-3 mr-1" />
@@ -278,27 +298,35 @@ export default function AdminUsuarios() {
                         )}
                       </span>
                     </td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => handleToggleStatus(usuario.id, usuario.ativo)}
-                          className={`${
-                            usuario.ativo 
-                              ? 'text-yellow-600 hover:text-yellow-900' 
+                          className={
+                            usuario.ativo
+                              ? 'text-yellow-600 hover:text-yellow-900'
                               : 'text-green-600 hover:text-green-900'
-                          }`}
+                          }
                           title={usuario.ativo ? 'Desativar' : 'Ativar'}
                         >
-                          {usuario.ativo ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+                          {usuario.ativo ? (
+                            <UserX className="w-4 h-4" />
+                          ) : (
+                            <UserCheck className="w-4 h-4" />
+                          )}
                         </button>
+
                         <span className="text-gray-300">|</span>
+
                         <Link
                           href={`/admin/usuarios?action=edit&id=${usuario.id}`}
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           <Edit2 className="w-4 h-4" />
                         </Link>
-                        {usuario.id !== session?.user?.id && (
+
+                        {usuario.id !== Number(session?.user?.id) && (
                           <>
                             <span className="text-gray-300">|</span>
                             <button
