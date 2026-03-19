@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { Plus, Edit2, Trash2, FolderOpen, Tag } from 'lucide-react'
 import Link from 'next/link'
+import { SuspenseWrapper } from '@/components/ui/SuspenseWrapper'
 
 interface Categoria {
   id: number
@@ -15,7 +16,7 @@ interface Categoria {
   atividades_count?: number
 }
 
-export default function AdminCategorias() {
+function AdminCategoriasContent() {
   const { data: session } = useSession()
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [loading, setLoading] = useState(true)
@@ -41,7 +42,7 @@ export default function AdminCategorias() {
   // Redirecionar para página de edição se action=edit
   useEffect(() => {
     if (action === 'edit' && editId) {
-      router.push(`/admin/categorias/${editId}`)
+      router.push(`/admin/categorias/edit/${editId}`)
     }
   }, [action, editId, router])
 
@@ -65,7 +66,7 @@ export default function AdminCategorias() {
     const categoria = categorias.find(c => c.id === id)
     if (!categoria) return
     
-    if (categoria.atividades_count > 0) {
+    if (categoria.atividades_count && categoria.atividades_count > 0) {
       alert(`Esta categoria possui ${categoria.atividades_count} atividade(s) vinculada(s). Não é possível excluir.`)
       return
     }
@@ -184,9 +185,9 @@ export default function AdminCategorias() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    categoria.atividades_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    categoria.atividades_count && categoria.atividades_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                   }`}>
-                    {categoria.atividades_count > 0 ? 'Em uso' : 'Sem uso'}
+                    {categoria.atividades_count && categoria.atividades_count > 0 ? 'Em uso' : 'Sem uso'}
                   </span>
                 </div>
                 
@@ -215,5 +216,13 @@ export default function AdminCategorias() {
         )}
       </div>
     </MainLayout>
+  )
+}
+
+export default function AdminCategorias() {
+  return (
+    <SuspenseWrapper>
+      <AdminCategoriasContent />
+    </SuspenseWrapper>
   )
 }

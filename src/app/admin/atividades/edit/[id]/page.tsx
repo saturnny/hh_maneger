@@ -69,10 +69,10 @@ export default function EditarAtividade({ params }: { params: { id: string } }) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
-    setSaving(true)
-
     if (!atividade) return
+
+    setSaving(true)
+    setError('')
 
     try {
       const response = await fetch(`/api/admin/atividades/${params.id}`, {
@@ -83,16 +83,15 @@ export default function EditarAtividade({ params }: { params: { id: string } }) 
         body: JSON.stringify({
           nome: atividade.nome,
           descricao: atividade.descricao,
-          categoria_id: atividade.categoria_id
+          categoria_id: atividade.categoria_id,
+          ativo: atividade.ativo
         })
       })
 
       if (response.ok) {
-        console.log('Atividade atualizada com sucesso!')
         router.push('/admin/atividades')
       } else {
         const data = await response.json()
-        console.error('Erro ao atualizar atividade:', data)
         setError(data.error || 'Erro ao atualizar atividade')
       }
     } catch (error) {
@@ -105,45 +104,43 @@ export default function EditarAtividade({ params }: { params: { id: string } }) 
 
   if (loading) {
     return (
-      <MainLayout title="Carregando..." subtitle="Buscando atividade">
-        <div className="flex items-center justify-center min-h-screen">
+      <MainLayout title="Editar Atividade" subtitle="Carregando...">
+        <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
         </div>
       </MainLayout>
     )
   }
 
-  if (!atividade) {
+  if (error || !atividade) {
     return (
-      <MainLayout title="Atividade não encontrada" subtitle="A atividade solicitada não foi encontrada">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <X className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Atividade não encontrada</h2>
-            <p className="text-gray-600 mb-6">A atividade que você está tentando editar não foi encontrada.</p>
-            <Link
-              href="/admin/atividades"
-              className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Voltar para Atividades
-            </Link>
-          </div>
+      <MainLayout title="Editar Atividade" subtitle="Erro">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">{error || 'Atividade não encontrada'}</p>
+          <Link href="/admin/atividades" className="text-red-600 hover:text-red-800 mt-2 inline-block">
+            ← Voltar para atividades
+          </Link>
         </div>
       </MainLayout>
     )
   }
 
   return (
-    <MainLayout title="Editar Atividade" subtitle="Altere as informações da atividade">
+    <MainLayout 
+      title="Editar Atividade" 
+      subtitle="Edite as informações da atividade"
+      action={
+        <Link
+          href="/admin/atividades"
+          className="flex items-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Voltar</span>
+        </Link>
+      }
+    >
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-              {error}
-            </div>
-          )}
-          
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -153,20 +150,8 @@ export default function EditarAtividade({ params }: { params: { id: string } }) 
                 type="text"
                 value={atividade.nome}
                 onChange={(e) => setAtividade({...atividade, nome: e.target.value})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                 required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Descrição
-              </label>
-              <textarea
-                value={atividade.descricao || ''}
-                onChange={(e) => setAtividade({...atividade, descricao: e.target.value})}
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
             </div>
 
@@ -177,10 +162,9 @@ export default function EditarAtividade({ params }: { params: { id: string } }) 
               <select
                 value={atividade.categoria_id}
                 onChange={(e) => setAtividade({...atividade, categoria_id: parseInt(e.target.value)})}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                 required
               >
-                <option value="">Selecione uma categoria</option>
                 {categorias.map((categoria) => (
                   <option key={categoria.id} value={categoria.id}>
                     {categoria.nome}
@@ -189,30 +173,51 @@ export default function EditarAtividade({ params }: { params: { id: string } }) 
               </select>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Descrição (opcional)
+              </label>
+              <textarea
+                value={atividade.descricao || ''}
+                onChange={(e) => setAtividade({...atividade, descricao: e.target.value})}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                placeholder="Descreva a atividade..."
+              />
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="ativo"
+                checked={atividade.ativo}
+                onChange={(e) => setAtividade({...atividade, ativo: e.target.checked})}
+                className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+              />
+              <label htmlFor="ativo" className="ml-2 block text-sm text-gray-900">
+                Atividade ativa
+              </label>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-red-800">{error}</p>
+              </div>
+            )}
+
             <div className="flex items-center justify-end space-x-4">
               <Link
                 href="/admin/atividades"
-                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Cancelar
               </Link>
-              
               <button
                 type="submit"
                 disabled={saving}
-                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
               >
-                {saving ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Salvando...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Salvar Alterações
-                  </>
-                )}
+                {saving ? 'Salvando...' : 'Salvar'}
               </button>
             </div>
           </form>

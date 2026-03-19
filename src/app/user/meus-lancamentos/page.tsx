@@ -6,6 +6,7 @@ import { MainLayout } from '@/components/layout/MainLayout'
 import { Plus, Eye, Edit2, Trash2, Calendar, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { SuspenseWrapper } from '@/components/ui/SuspenseWrapper'
 
 interface Lancamento {
   id: number
@@ -21,7 +22,7 @@ interface Lancamento {
   }
 }
 
-export default function MeusLancamentos() {
+function MeusLancamentosContent() {
   const { data: session } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -436,5 +437,13 @@ function NovoLancamento() {
         </div>
       </div>
     </MainLayout>
+  )
+}
+
+export default function MeusLancamentos() {
+  return (
+    <SuspenseWrapper>
+      <MeusLancamentosContent />
+    </SuspenseWrapper>
   )
 }

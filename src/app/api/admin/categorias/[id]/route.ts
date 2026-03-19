@@ -19,15 +19,16 @@ export async function DELETE(
       .from('atividades')
       .select('id')
       .eq('categoria_id', params.id)
-      .limit(1)
 
     if (checkError) {
-      console.error('Erro ao verificar atividades:', checkError)
-      return NextResponse.json({ error: 'Erro ao verificar atividades' }, { status: 500 })
+      console.error('Erro ao verificar atividades vinculadas:', checkError)
+      return NextResponse.json({ error: 'Erro ao verificar atividades vinculadas' }, { status: 500 })
     }
 
     if (atividades && atividades.length > 0) {
-      return NextResponse.json({ error: 'Não é possível excluir categoria com atividades vinculadas' }, { status: 400 })
+      return NextResponse.json({ 
+        error: 'Não é possível excluir categoria pois existem atividades vinculadas' 
+      }, { status: 400 })
     }
 
     const { error } = await supabaseServer

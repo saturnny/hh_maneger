@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { Plus, Edit2, Trash2, List, Tag, Calendar } from 'lucide-react'
 import Link from 'next/link'
+import { SuspenseWrapper } from '@/components/ui/SuspenseWrapper'
 
 interface Atividade {
   id: number
@@ -19,7 +20,7 @@ interface Atividade {
   }
 }
 
-export default function AdminAtividades() {
+function AdminAtividadesContent() {
   const { data: session } = useSession()
   const [atividades, setAtividades] = useState<Atividade[]>([])
   const [categorias, setCategorias] = useState([])
@@ -47,7 +48,7 @@ export default function AdminAtividades() {
   // Redirecionar para página de edição se action=edit
   useEffect(() => {
     if (action === 'edit' && editId) {
-      router.push(`/admin/atividades/${editId}`)
+      router.push(`/admin/atividades/edit/${editId}`)
     }
   }, [action, editId, router])
 
@@ -251,5 +252,13 @@ export default function AdminAtividades() {
         </div>
       </div>
     </MainLayout>
+  )
+}
+
+export default function AdminAtividades() {
+  return (
+    <SuspenseWrapper>
+      <AdminAtividadesContent />
+    </SuspenseWrapper>
   )
 }
